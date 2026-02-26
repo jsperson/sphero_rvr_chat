@@ -7,7 +7,7 @@ from typing import Any
 import yaml
 
 DEFAULT_CONFIG = {
-    "model": "qwen2.5:7b",
+    "model": "qwen2.5:1.5b",
     "mcp_command": ["/home/jsperson/source/sphero_rvr_mcp/.venv/bin/python", "-m", "sphero_rvr_mcp"],
     "max_history": 100,
     "temperature": 0.7,

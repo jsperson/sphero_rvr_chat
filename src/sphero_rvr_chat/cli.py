@@ -52,7 +52,7 @@ class RVRChat:
             return False
 
         # Check model is available
-        model = self.config.get("model", "qwen2.5:7b")
+        model = self.config.get("model", "qwen2.5:1.5b")
         model_names = [m.get("name", "").split(":")[0] for m in models.get("models", [])]
         base_model = model.split(":")[0]
 
@@ -221,29 +221,56 @@ Commands:
 
         return False
 
-    async def process_message(self, user_input: str) -> str:
-        """Process a user message and return the assistant's response."""
-        self.memory.add_message("user", user_input)
+    async def _stream_chat(self, messages: list, prefix: str = "") -> tuple[str, list]:
+        """Stream a chat response, printing tokens as they arrive.
 
-        model = self.config.get("model", "qwen2.5:7b")
+        Returns:
+            Tuple of (full content text, list of tool calls)
+        """
+        model = self.config.get("model", "qwen2.5:1.5b")
+        content_parts = []
+        tool_calls = []
+
+        client = ollama.AsyncClient()
+
+        if prefix:
+            print(prefix, end="", flush=True)
+
+        stream = await client.chat(
+            model=model,
+            messages=messages,
+            tools=self.ollama_tools,
+            options={"temperature": self.config.get("temperature", 0.7)},
+            stream=True,
+        )
+
+        async for chunk in stream:
+            msg = chunk.get("message", {})
+            text = msg.get("content", "")
+            if text:
+                content_parts.append(text)
+                print(text, end="", flush=True)
+            if msg.get("tool_calls"):
+                tool_calls.extend(msg["tool_calls"])
+
+        if content_parts:
+            print()  # newline after streamed content
+
+        return "".join(content_parts), tool_calls
+
+    async def process_message(self, user_input: str) -> None:
+        """Process a user message with streaming output."""
+        self.memory.add_message("user", user_input)
         messages = self.memory.get_messages()
 
-        # Call Ollama with tools
+        # Stream response from Ollama
         try:
-            response = ollama.chat(
-                model=model,
-                messages=messages,
-                tools=self.ollama_tools,
-                options={"temperature": self.config.get("temperature", 0.7)},
-            )
+            content, tool_calls = await self._stream_chat(messages, "\nAssistant: ")
         except Exception as e:
             error_msg = f"LLM error: {e}"
             self.memory.add_message("assistant", error_msg)
-            return error_msg
-
-        message = response.get("message", {})
-        content = message.get("content", "")
-        tool_calls = message.get("tool_calls", [])
+            print(f"\nAssistant: {error_msg}\n")
+            return
 
         # Process tool calls
         if tool_calls:
@@ -261,20 +288,17 @@ Commands:
                     self.memory.add_tool_result(tool_name, result)
                     print(f"  [Result: {result}]")
 
-            # Get follow-up response after tool calls
+            # Stream follow-up response after tool calls
             try:
-                follow_up = ollama.chat(
-                    model=model,
-                    messages=self.memory.get_messages(),
-                    tools=self.ollama_tools,
-                    options={"temperature": self.config.get("temperature", 0.7)},
+                content, _ = await self._stream_chat(
+                    self.memory.get_messages(), "\nAssistant: "
                 )
-                content = follow_up.get("message", {}).get("content", "")
             except Exception as e:
                 content = f"Error getting follow-up: {e}"
+                print(f"\nAssistant: {content}")
 
         self.memory.add_message("assistant", content)
-        return content
+        print()  # blank line after response
 
     async def run(self) -> None:
         """Run the main chat loop."""
@@ -309,9 +333,8 @@ Commands:
                     if await self.handle_command(user_input):
                         continue
 
-                # Process regular message
-                response = await self.process_message(user_input)
-                print(f"\nAssistant: {response}\n")
+                # Process regular message (streams output directly)
+                await self.process_message(user_input)
 
         finally:
             print("\nShutting down...")
