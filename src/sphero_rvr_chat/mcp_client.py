@@ -104,16 +104,35 @@ class MCPClient:
                 self.process.stdin.write(request_json + "\n")
                 self.process.stdin.flush()
 
-                # Read response (with timeout)
+                # Read response (with timeout), skipping non-JSON lines
                 loop = asyncio.get_event_loop()
-                response_line = await asyncio.wait_for(
-                    loop.run_in_executor(None, self.process.stdout.readline),
-                    timeout=30.0
-                )
+                start_time = asyncio.get_event_loop().time()
+                timeout = 30.0
 
-                if response_line:
-                    return json.loads(response_line)
-                return None
+                while True:
+                    remaining = timeout - (asyncio.get_event_loop().time() - start_time)
+                    if remaining <= 0:
+                        raise asyncio.TimeoutError()
+
+                    response_line = await asyncio.wait_for(
+                        loop.run_in_executor(None, self.process.stdout.readline),
+                        timeout=remaining
+                    )
+
+                    if not response_line:
+                        return None
+
+                    response_line = response_line.strip()
+                    if not response_line:
+                        continue
+
+                    # Try to parse as JSON
+                    if response_line.startswith("{"):
+                        try:
+                            return json.loads(response_line)
+                        except json.JSONDecodeError:
+                            continue
+                    # Skip non-JSON lines (server startup messages, logs, etc.)
 
             except asyncio.TimeoutError:
                 print("MCP request timed out", file=sys.stderr)
