@@ -1,4 +1,4 @@
-"""Configuration management for RVR Chat."""
+"""Configuration management for Sphero RVR Chat."""
 
 import os
 from pathlib import Path
@@ -16,7 +16,7 @@ DEFAULT_CONFIG = {
 
 def get_config_dir() -> Path:
     """Get the configuration directory path."""
-    config_dir = Path.home() / ".rvr-chat"
+    config_dir = Path.home() / ".sphero-rvr-chat"
     config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir
 

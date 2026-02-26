@@ -1,4 +1,4 @@
-# RVR Chat
+# Sphero RVR Chat
 
 Local LLM chat interface for controlling Sphero RVR via MCP. Runs entirely on a Raspberry Pi 5.
 
@@ -8,8 +8,8 @@ Local LLM chat interface for controlling Sphero RVR via MCP. Runs entirely on a 
 ┌─────────────────────────────────────────────────────┐
 │                    Pi 5 (16GB)                      │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────┐ │
-│  │   Ollama    │◄──►│  rvr-chat   │◄──►│ MCP Srv │ │
-│  │ (qwen2.5)   │    │   (CLI)     │    │ (RVR)   │ │
+│  │   Ollama    │◄──►│ sphero-rvr  │◄──►│ MCP Srv │ │
+│  │ (qwen2.5)   │    │    -chat    │    │ (RVR)   │ │
 │  └─────────────┘    └─────────────┘    └────┬────┘ │
 └─────────────────────────────────────────────┼──────┘
                                               │ Serial
@@ -28,15 +28,15 @@ Local LLM chat interface for controlling Sphero RVR via MCP. Runs entirely on a 
 ## Quick Install
 
 ```bash
-git clone <this-repo>
-cd rvr-chat
+git clone https://github.com/jsperson/sphero_rvr_chat.git
+cd sphero_rvr_chat
 ./install.sh
 ```
 
 This will:
 1. Install Ollama
 2. Download the Qwen 2.5 7B model (~5GB)
-3. Install rvr-chat in a virtual environment
+3. Install sphero-rvr-chat in a virtual environment
 
 ## Manual Install
 
@@ -47,8 +47,8 @@ curl -fsSL https://ollama.com/install.sh | sh
 # Pull model
 ollama pull qwen2.5:7b
 
-# Install rvr-chat
-cd rvr-chat
+# Install sphero-rvr-chat
+cd sphero_rvr_chat
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -58,7 +58,7 @@ pip install -e .
 
 ```bash
 source .venv/bin/activate
-rvr-chat
+sphero-rvr-chat
 ```
 
 ### Chat Commands
@@ -80,8 +80,8 @@ rvr-chat
 ### Example Session
 
 ```
-$ rvr-chat
-RVR Chat v0.1.0
+$ sphero-rvr-chat
+Sphero RVR Chat v0.1.0
 ========================================
 Checking Ollama... OK
 Model: qwen2.5:7b
@@ -109,7 +109,7 @@ You: now turn around and come back
 Assistant: Done\! I turned 180 degrees and drove back 1 meter.
 
 You: /save exploration
-Saved to: ~/.rvr-chat/history/exploration.json
+Saved to: ~/.sphero-rvr-chat/history/exploration.json
 
 You: /quit
 Shutting down...
@@ -117,12 +117,14 @@ Shutting down...
 
 ## Configuration
 
-Configuration is stored in `~/.rvr-chat/config.yaml`:
+Configuration is stored in `~/.sphero-rvr-chat/config.yaml`:
 
 ```yaml
 model: qwen2.5:7b
 mcp_command:
-  - sphero-rvr-mcp
+  - /path/to/sphero_rvr_mcp/.venv/bin/python
+  - -m
+  - sphero_rvr_mcp
 max_history: 100
 temperature: 0.7
 auto_connect_rvr: true

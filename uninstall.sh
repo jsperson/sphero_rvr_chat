@@ -1,5 +1,5 @@
 #!/bin/bash
-# RVR Chat Uninstall Script
+# Sphero RVR Chat Uninstall Script
 
 set -e
 
@@ -11,15 +11,15 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "========================================"
-echo "  RVR Chat Uninstaller"
+echo "  Sphero RVR Chat Uninstaller"
 echo "========================================"
 echo ""
 
 # Ask about config files
-read -p "Delete configuration and history? (~/.rvr-chat) [y/N] " -n 1 -r
+read -p "Delete configuration and history? (~/.sphero-rvr-chat) [y/N] " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    rm -rf ~/.rvr-chat
+    rm -rf ~/.sphero-rvr-chat
     echo -e "  ${GREEN}✓${NC} Configuration deleted"
 fi
 

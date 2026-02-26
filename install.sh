@@ -1,6 +1,6 @@
 #!/bin/bash
-# RVR Chat Installation Script
-# Installs Ollama, downloads model, and sets up rvr-chat
+# Sphero RVR Chat Installation Script
+# Installs Ollama, downloads model, and sets up sphero-rvr-chat
 
 set -e
 
@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo "========================================"
-echo "  RVR Chat Installer"
+echo "  Sphero RVR Chat Installer"
 echo "========================================"
 echo ""
 
@@ -18,7 +18,7 @@ echo ""
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Configuration
-MODEL="${RVR_CHAT_MODEL:-qwen2.5:7b}"
+MODEL="${SPHERO_RVR_CHAT_MODEL:-qwen2.5:7b}"
 
 # -----------------------------------------------------------------------------
 # Step 1: System Dependencies
@@ -106,9 +106,9 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# Step 4: Install rvr-chat
+# Step 4: Install sphero-rvr-chat
 # -----------------------------------------------------------------------------
-echo -e "${YELLOW}[4/5]${NC} Installing rvr-chat..."
+echo -e "${YELLOW}[4/5]${NC} Installing sphero-rvr-chat..."
 
 cd "$SCRIPT_DIR"
 
@@ -124,7 +124,7 @@ echo "  Installing dependencies..."
 pip install --quiet --upgrade pip
 pip install --quiet -e .
 
-echo -e "  ${GREEN}✓${NC} rvr-chat installed"
+echo -e "  ${GREEN}✓${NC} sphero-rvr-chat installed"
 
 # -----------------------------------------------------------------------------
 # Step 5: Verify sphero-rvr-mcp
@@ -136,7 +136,7 @@ if command -v sphero-rvr-mcp &> /dev/null || python3 -c "import sphero_rvr_mcp" 
 else
     echo -e "  ${YELLOW}!${NC} sphero-rvr-mcp not found in PATH"
     echo "  Make sure sphero_rvr_mcp is installed and accessible"
-    echo "  You may need to update the mcp_command in ~/.rvr-chat/config.yaml"
+    echo "  You may need to update the mcp_command in ~/.sphero-rvr-chat/config.yaml"
 fi
 
 # -----------------------------------------------------------------------------
@@ -147,16 +147,16 @@ echo "========================================"
 echo -e "  ${GREEN}Installation Complete!${NC}"
 echo "========================================"
 echo ""
-echo "To run rvr-chat:"
+echo "To run sphero-rvr-chat:"
 echo ""
 echo "  cd $SCRIPT_DIR"
 echo "  source .venv/bin/activate"
-echo "  rvr-chat"
+echo "  sphero-rvr-chat"
 echo ""
 echo "Or add this to your shell profile:"
 echo ""
-echo "  alias rvr-chat='$SCRIPT_DIR/.venv/bin/rvr-chat'"
+echo "  alias sphero-rvr-chat='$SCRIPT_DIR/.venv/bin/sphero-rvr-chat'"
 echo ""
-echo "Configuration: ~/.rvr-chat/config.yaml"
-echo "Conversations: ~/.rvr-chat/history/"
+echo "Configuration: ~/.sphero-rvr-chat/config.yaml"
+echo "Conversations: ~/.sphero-rvr-chat/history/"
 echo ""

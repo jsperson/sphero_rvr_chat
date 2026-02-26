@@ -1,4 +1,4 @@
-"""Command-line interface for RVR Chat."""
+"""Command-line interface for Sphero RVR Chat."""
 
 import asyncio
 import sys
@@ -38,7 +38,7 @@ class RVRChat:
 
     async def start(self) -> bool:
         """Initialize the chat application."""
-        print(f"RVR Chat v{__version__}")
+        print(f"Sphero RVR Chat v{__version__}")
         print("=" * 40)
 
         # Check Ollama is running
